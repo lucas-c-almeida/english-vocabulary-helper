@@ -1,0 +1,106 @@
+# English Vocabulary Helper
+
+A CLI tool for building vocabulary while listening to English audiobooks. You heard the word but didn't read it — type it phonetically and the tool figures out what you meant, defines it, and saves it to your personal log.
+
+## Features
+
+- **Phonetic correction** — handles misspellings like `serendiputy` → `serendipity`
+- **Context-aware disambiguation** — pass the sentence you heard to resolve homophones and choose the right sense
+- **Rich entries** — pronunciation, part of speech, definition, etymology, examples, synonyms
+- **Live streaming** — response prints as it arrives
+- **Vocabulary log** — every lookup is appended to `vocabulary.json`
+- **Versioned prompts** — system prompt lives in `prompts/` as a YAML file with metadata
+
+## Setup
+
+```bash
+pip install -r requirements.txt
+export ANTHROPIC_API_KEY=sk-...   # Windows: set ANTHROPIC_API_KEY=sk-...
+```
+
+## Usage
+
+```bash
+# Word only
+python main.py serendiputy
+
+# Word + sentence heard in the audiobook
+python main.py "ephimeral" "the ephimeral glow of the candle"
+```
+
+### Example output
+
+```
+────────────────────────────────────────────────────────────
+Word: serendipity  (you typed: serendiputy)
+Pronunciation: /ˌser.ənˈdɪp.ɪ.ti/
+Part of speech: noun
+
+Definition:
+The occurrence of happy or beneficial events by chance rather than design.
+
+Etymology:
+Coined in 1754 by Horace Walpole from a Persian fairy tale, "The Three
+Princes of Serendip," whose heroes made fortunate accidental discoveries.
+
+Examples:
+• Finding the perfect apartment was pure serendipity — she wasn't even
+  looking that day.
+• ...
+
+Synonyms: chance, fortune, luck
+────────────────────────────────────────────────────────────
+✓ Saved to vocabulary.json
+```
+
+## Vocabulary log
+
+Each lookup is appended to `vocabulary.json` (created automatically):
+
+```json
+[
+  {
+    "date": "2026-03-25",
+    "input": "serendiputy",
+    "word": "serendipity",
+    "context": "",
+    "pos": "noun",
+    "definition": "The occurrence of happy or beneficial events by chance."
+  }
+]
+```
+
+## Prompt management
+
+The active system prompt is in `prompts/vocabulary_assistant.yaml`. Each file carries:
+
+```yaml
+version: 1
+created: "2026-03-25"
+active: true
+description: "..."
+system: |
+  ...
+```
+
+`main.py` scans `prompts/` at runtime and loads whichever file has `active: true`. To switch prompts, set `active: false` on the current one and `active: true` on the new one — no code changes needed.
+
+## Project structure
+
+```
+EnglishTeacher/
+├── main.py              # CLI entry point
+├── requirements.txt     # Python dependencies
+├── vocabulary.json      # Auto-created vocab log (gitignored)
+├── prompts/
+│   └── vocabulary_assistant.yaml   # Active system prompt
+└── agents.md            # AI development history
+```
+
+## Dependencies
+
+| Package | Purpose |
+|---|---|
+| `langchain-anthropic` | Claude integration via LangChain |
+| `langchain-core` | Prompt templates, output parsers, LCEL |
+| `pyyaml` | Load prompt YAML files |
