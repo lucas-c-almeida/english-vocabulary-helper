@@ -71,3 +71,29 @@ Create complete project documentation including a README and this `agents.md` fi
 **Files created:**
 - `README.md` — setup, usage, example output, vocab log format, prompt management, project structure, dependencies table
 - `agents.md` — this file
+
+---
+
+### Instruction 5: Add voice input and voice output
+
+**Prompt summary:**
+1. Whisper integration to receive the word by audio (`--listen` flag)
+2. Whisper integration to generate audio with the correct pronunciation and example sentences (`--speak` flag)
+
+**Clarifications made:**
+- Whisper is STT only; for TTS, gTTS (Google TTS, free, no API key) was chosen
+- Local Whisper `base` model (~74 MB) selected — fast enough for single-word transcription, works offline after first download
+- Both features are opt-in flags; existing text-based workflow is unchanged
+- ffmpeg required at OS level (PATH) for both features
+
+**Decisions made:**
+- CLI migrated from manual `sys.argv` parsing to `argparse` to cleanly support the new flags
+- `--listen`: records mic audio via `sounddevice` at 16 kHz (Whisper's native rate); recording stops when user presses Enter; audio saved to temp WAV via `scipy`, transcribed with `whisper.load_model("base")`
+- `--speak`: builds a script from the corrected word + example sentences, generates MP3 with `gTTS`, plays with `pygame.mixer`
+- `parse_response()` extended to also extract example sentences (lines starting with `•`) for use by the TTS function and stored in `vocabulary.json`
+- Whisper model is loaded fresh each invocation (acceptable since it's one word at a time)
+
+**Files modified:**
+- `main.py` — added `argparse`, `record_audio()`, `transcribe()`, `speak()`, extended `parse_response()`
+- `requirements.txt` — added `openai-whisper`, `sounddevice`, `scipy`, `gtts`, `pygame`
+- `README.md` — added Prerequisites section with ffmpeg install instructions, updated Usage and Dependencies

@@ -1,6 +1,6 @@
 # English Vocabulary Helper
 
-A CLI tool for building vocabulary while listening to English audiobooks. You heard the word but didn't read it — type it phonetically and the tool figures out what you meant, defines it, and saves it to your personal log.
+A CLI tool for building vocabulary while listening to English audiobooks. You heard the word but didn't read it — type it phonetically or speak it into the mic, and the tool figures out what you meant, defines it, and saves it to your personal log.
 
 ## Features
 
@@ -8,8 +8,27 @@ A CLI tool for building vocabulary while listening to English audiobooks. You he
 - **Context-aware disambiguation** — pass the sentence you heard to resolve homophones and choose the right sense
 - **Rich entries** — pronunciation, part of speech, definition, etymology, examples, synonyms
 - **Live streaming** — response prints as it arrives
+- **Voice input** (`--listen`) — speak the word into the mic; Whisper transcribes it locally
+- **Voice output** (`--speak`) — plays audio of the corrected word and example sentences after lookup
 - **Vocabulary log** — every lookup is appended to `vocabulary.json`
 - **Versioned prompts** — system prompt lives in `prompts/` as a YAML file with metadata
+
+## Prerequisites
+
+### ffmpeg (required for voice features)
+
+ffmpeg must be installed and available on your PATH before using `--listen` or `--speak`.
+
+**Windows:**
+```bash
+winget install ffmpeg
+```
+Or download from [ffmpeg.org](https://ffmpeg.org/download.html), extract, and add the `bin/` folder to your PATH environment variable.
+
+Verify the install:
+```bash
+ffmpeg -version
+```
 
 ## Setup
 
@@ -18,14 +37,28 @@ pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-...   # Windows: set ANTHROPIC_API_KEY=sk-...
 ```
 
+> On first use of `--listen`, Whisper will download the `base` model (~74 MB) and cache it locally.
+
 ## Usage
 
 ```bash
-# Word only
+# Type the word (phonetic spelling is fine)
 python main.py serendiputy
 
-# Word + sentence heard in the audiobook
+# Type the word + sentence you heard
 python main.py "ephimeral" "the ephimeral glow of the candle"
+
+# Speak the word into the mic (press Enter to stop recording)
+python main.py --listen
+
+# Speak the word, provide context as text
+python main.py --listen "the ephimeral glow of the candle"
+
+# Look up a word and play pronunciation audio afterwards
+python main.py serendiputy --speak
+
+# Full audio mode: speak input, hear output
+python main.py --listen --speak
 ```
 
 ### Example output
@@ -65,7 +98,11 @@ Each lookup is appended to `vocabulary.json` (created automatically):
     "word": "serendipity",
     "context": "",
     "pos": "noun",
-    "definition": "The occurrence of happy or beneficial events by chance."
+    "definition": "The occurrence of happy or beneficial events by chance.",
+    "examples": [
+      "Finding the perfect apartment was pure serendipity.",
+      "..."
+    ]
   }
 ]
 ```
@@ -104,3 +141,8 @@ EnglishTeacher/
 | `langchain-anthropic` | Claude integration via LangChain |
 | `langchain-core` | Prompt templates, output parsers, LCEL |
 | `pyyaml` | Load prompt YAML files |
+| `openai-whisper` | Local speech-to-text (base model) |
+| `sounddevice` | Microphone capture |
+| `scipy` | Save recorded audio as WAV |
+| `gtts` | Google Text-to-Speech, free, no API key |
+| `pygame` | Audio playback |

@@ -1,3 +1,8 @@
 langchain-anthropic
 langchain-core
 pyyaml
+openai-whisper
+sounddevice
+scipy
+gtts
+pygame
