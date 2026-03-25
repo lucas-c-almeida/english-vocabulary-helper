@@ -97,3 +97,25 @@ Create complete project documentation including a README and this `agents.md` fi
 - `main.py` — added `argparse`, `record_audio()`, `transcribe()`, `speak()`, extended `parse_response()`
 - `requirements.txt` — added `openai-whisper`, `sounddevice`, `scipy`, `gtts`, `pygame`
 - `README.md` — added Prerequisites section with ffmpeg install instructions, updated Usage and Dependencies
+
+---
+
+### Instruction 6: Make the tool installable as a CLI command
+
+**Prompt summary:**
+Package the tool so it can be invoked as `vocab <word>` from any directory, without requiring `python main.py`.
+
+**Decisions made:**
+- Used `pyproject.toml` with a `[project.scripts]` entry point: `vocab = "main:main"`
+- Editable install (`pip install -e .`) so source files are used directly — prompt edits and code changes take effect without reinstalling
+- `[tool.setuptools] py-modules = ["main"]` tells setuptools to treat root-level `main.py` as a top-level module (flat layout, no restructuring needed)
+- `__file__`-based paths for `PROMPTS_DIR` and `VOCAB_FILE` in `main.py` continue to resolve to the project directory under editable install
+- Added `install.bat` and `install.sh` helper scripts for a one-command install experience
+
+**Files created:**
+- `pyproject.toml` — packaging config with entry point
+- `install.bat` — Windows install helper (`pip install -e .`)
+- `install.sh` — macOS/Linux install helper
+
+**Files modified:**
+- `README.md` — added Installation section, updated Usage to show `vocab` as primary invocation

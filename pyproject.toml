@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "english-vocabulary-helper"
+version = "1.0.0"
+requires-python = ">=3.8"
+dependencies = [
+    "langchain-anthropic",
+    "langchain-core",
+    "pyyaml",
+    "openai-whisper",
+    "sounddevice",
+    "scipy",
+    "gtts",
+    "pygame",
+]
+
+[project.scripts]
+vocab = "main:main"
+
+[tool.setuptools]
+py-modules = ["main"]

@@ -30,10 +30,36 @@ Verify the install:
 ffmpeg -version
 ```
 
+## Installation
+
+Install the `vocab` command so it works from any directory:
+
+**Windows:**
+```
+install.bat
+```
+
+**macOS / Linux:**
+```
+chmod +x install.sh && ./install.sh
+```
+
+Or manually:
+```
+pip install -e .
+```
+
+After installation, `vocab` is available system-wide:
+```bash
+vocab serendiputy
+vocab --listen --speak
+```
+
+> Uses editable install (`-e`): prompt changes in `prompts/` and code edits take effect immediately without reinstalling.
+
 ## Setup
 
 ```bash
-pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-...   # Windows: set ANTHROPIC_API_KEY=sk-...
 ```
 
@@ -43,23 +69,25 @@ export ANTHROPIC_API_KEY=sk-...   # Windows: set ANTHROPIC_API_KEY=sk-...
 
 ```bash
 # Type the word (phonetic spelling is fine)
-python main.py serendiputy
+vocab serendiputy
 
 # Type the word + sentence you heard
-python main.py "ephimeral" "the ephimeral glow of the candle"
+vocab "ephimeral" "the ephimeral glow of the candle"
 
 # Speak the word into the mic (press Enter to stop recording)
-python main.py --listen
+vocab --listen
 
 # Speak the word, provide context as text
-python main.py --listen "the ephimeral glow of the candle"
+vocab --listen "the ephimeral glow of the candle"
 
 # Look up a word and play pronunciation audio afterwards
-python main.py serendiputy --speak
+vocab serendiputy --speak
 
 # Full audio mode: speak input, hear output
-python main.py --listen --speak
+vocab --listen --speak
 ```
+
+> You can also run directly with `python main.py <word>` from the project directory.
 
 ### Example output
 
@@ -127,7 +155,10 @@ system: |
 ```
 EnglishTeacher/
 ├── main.py              # CLI entry point
+├── pyproject.toml       # Packaging config (vocab command)
 ├── requirements.txt     # Python dependencies
+├── install.bat          # Windows install helper
+├── install.sh           # macOS/Linux install helper
 ├── vocabulary.json      # Auto-created vocab log (gitignored)
 ├── prompts/
 │   └── vocabulary_assistant.yaml   # Active system prompt
