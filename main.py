@@ -3,39 +3,25 @@ import json
 import os
 from datetime import date
 
+import yaml
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-SYSTEM_PROMPT = """You are a vocabulary assistant for an English learner who is improving their vocabulary by listening to audiobooks.
-
-The user will give you a word they heard — it may be misspelled or phonetically approximated since they only heard it, not read it. An optional sentence showing where the word appeared may also be provided.
-
-Your task:
-1. SPELL CORRECTION: Identify the most likely intended word. Consider common phonetic confusions (silent letters, vowel sounds, similar-sounding consonants). If the spelling is correct, proceed as-is.
-2. DISAMBIGUATION: If context is provided, use it to select the right meaning or resolve homophones.
-3. OUTPUT: Return a structured entry in exactly this format:
-
-Word: <corrected word>  (you typed: <input>) — omit the parenthetical if spelling was correct
-Pronunciation: /<phonetic>/
-Part of speech: <noun/verb/adjective/etc.>
-
-Definition:
-<Clear, direct definition. Avoid circular definitions. One or two sentences.>
-
-Etymology:
-<One sentence on the word's origin — helps with memorization.>
-
-Examples:
-• <natural sentence>
-• <natural sentence>
-• <natural sentence>
-
-Synonyms: <word1>, <word2>, <word3>
-
-If the misspelling is so ambiguous that 2+ very different words are equally plausible and no context is given, list both candidates (word + brief definition each) and ask the user to clarify. Do this only as a last resort — always make a best guess first."""
-
+PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "prompts")
 VOCAB_FILE = os.path.join(os.path.dirname(__file__), "vocabulary.json")
+
+
+def load_active_prompt() -> str:
+    for filename in os.listdir(PROMPTS_DIR):
+        if not filename.endswith(".yaml"):
+            continue
+        path = os.path.join(PROMPTS_DIR, filename)
+        with open(path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        if data.get("active"):
+            return data["system"]
+    raise RuntimeError("No active prompt found in prompts/")
 
 
 def parse_response(text: str, input_word: str, context: str) -> dict:
@@ -103,8 +89,9 @@ def main():
     else:
         user_message = input_word
 
+    system_prompt = load_active_prompt()
     prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT),
+        ("system", system_prompt),
         ("human", "{input}"),
     ])
 
